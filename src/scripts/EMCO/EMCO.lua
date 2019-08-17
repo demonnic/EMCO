@@ -1,4 +1,7 @@
---- Represents the EMCO primitive
+--- Embeddable Multi Console Object.
+-- This is essentially YATCO, but with some tweaks, updates, and it returns an object
+-- similar to Geyser so that you can a.) have multiple of them and b.) easily embed it
+-- into your existing UI as you would any other Geyser element.
 -- @module EMCO
 EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
@@ -156,9 +159,9 @@ function EMCO:stripTimeChars(str)
   return string.gsub(string.trim(str), '[hHmMszZaApPdy:. ]', '')
 end
 
---- Expands boolean definitions to be more flexible
--- True values are "true", "yes", "0", 0, and true
--- False values are "false", "no", "1", 1, false, and nil
+--- Expands boolean definitions to be more flexible.
+-- <br>True values are "true", "yes", "0", 0, and true
+-- <br>False values are "false", "no", "1", 1, false, and nil
 -- @param bool item to test for truthiness
 function EMCO:fuzzyBoolean(bool)
   if type(bool) == "boolean" or bool == nil then
@@ -231,7 +234,7 @@ function EMCO:setTimestampFGColor(color)
 end
 
 --- Sets the 'all' tab name.
--- This is the name of the tab itself
+-- <br>This is the name of the tab itself
 -- @tparam string allTabName name of the tab to use as the all tab. Must be a tab which exists in the object.
 function EMCO:setAllTabName(allTabName)
   local funcName = "EMCO:setAllTabName(allTabName)"
@@ -251,8 +254,8 @@ function EMCO:disableAllTab()
   self.allTab = false
 end
 
---- Enables tying the Mudlet Mapper to one of the tabs
--- mapTabName must be set, or this will error. Forces a redraw of the entire object
+--- Enables tying the Mudlet Mapper to one of the tabs.
+-- <br>mapTabName must be set, or this will error. Forces a redraw of the entire object
 function EMCO:enableMapTab()
   local funcName = "EMCO:enableMapTab()"
   if not self.mapTabName then
@@ -262,16 +265,17 @@ function EMCO:enableMapTab()
   self:reset()
 end
 
---- disables binding the Mudlet Mapper to one of the tabs
--- CAUTION: this may have unexpected behaviour, as you can only open one Mapper console per profile
---          so you can't really unbind it. Binding of the Mudlet Mapper is best decided at instantiation.
+--- disables binding the Mudlet Mapper to one of the tabs.
+-- <br>CAUTION: this may have unexpected behaviour, as you can only open one Mapper console per profile
+-- so you can't really unbind it. Binding of the Mudlet Mapper is best decided at instantiation.
 function EMCO:disableMapTab()
   self.mapTab = false
 end
 
---- sets the name of the tab to bind the Mudlet Map to. Forces a redraw of the object
--- CAUTION: Mudlet only allows one Map object to be open at one time, so if you are going to attach the map to an object
---          you should probably do it at instantiation.
+--- sets the name of the tab to bind the Mudlet Map.
+-- <br>Forces a redraw of the object
+-- <br>CAUTION: Mudlet only allows one Map object to be open at one time, so if you are going to attach the map to an object
+-- you should probably do it at instantiation.
 -- @tparam string mapTabName name of the tab to connect the Mudlet Map to.
 function EMCO:setMapTabName(mapTabName)
   local funcName = "EMCO:setMapTabName(mapTabName)"
@@ -408,16 +412,16 @@ function EMCO:setInactiveTabFGColor(color)
   self:adjustTabNames()
 end
 
---- Sets the BG color for the active tab
--- NOTE: If you set CSS for the active tab, it will override this setting. 
+--- Sets the BG color for the active tab.
+-- <br>NOTE: If you set CSS for the active tab, it will override this setting. 
 -- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
 function EMCO:setActiveTabBGColor(color)
   self.activeTabBGColor = color
   self:adjustTabBackgrounds()
 end
 
---- Sets the BG color for the inactive tab
--- NOTE: If you set CSS for the inactive tab, it will override this setting.
+--- Sets the BG color for the inactive tab.
+-- <br>NOTE: If you set CSS for the inactive tab, it will override this setting.
 -- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
 function EMCO:setInactiveTabBGColor(color)
   self.inactiveTabBGColor = color
@@ -436,7 +440,7 @@ function EMCO:adjustConsoleColors()
     if self.mapTab and self.mapTabName == console then
       -- skip Map
     else
-      self.windows[console]:setColor(color)
+      self.windows[console]:setColor(self.consoleColor)
     end
   end
 end
@@ -513,8 +517,8 @@ function EMCO:setTabHeight(tabHeight)
   end
 end
 
---- Enables autowrap for the object, and by extension all attached consoles
--- To enable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:enableAutoWrap()
+--- Enables autowrap for the object, and by extension all attached consoles.
+-- <br>To enable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:enableAutoWrap()
 -- but be warned if you do this it may be overwritten by future calls to EMCO:enableAutoWrap() or :disableAutoWrap()
 function EMCO:enableAutoWrap()
   self.autoWrap = true
@@ -527,8 +531,8 @@ function EMCO:enableAutoWrap()
   end
 end
 
---- Disables autowrap for the object, and by extension all attached consoles
--- To disable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:disableAutoWrap()
+--- Disables autowrap for the object, and by extension all attached consoles.
+-- <br>To disable autoWrap for a specific miniconsole only, call myEMCO.windows[tabName]:disableAutoWrap()
 -- but be warned if you do this it may be overwritten by future calls to EMCO:enableAutoWrap() or :disableAutoWrap()
 function EMCO:disableAutoWrap()
   self.autoWrap = false
@@ -541,8 +545,8 @@ function EMCO:disableAutoWrap()
   end
 end
 
---- Sets the number of characters to wordwrap the attached consoles at
--- it is generally recommended to make use of autoWrap unless you need
+--- Sets the number of characters to wordwrap the attached consoles at.
+-- <br>it is generally recommended to make use of autoWrap unless you need
 -- a specific width for some reason
 function EMCO:setWrap(wrapAt)
   local funcName = "EMCO:setWrap(wrapAt)"
@@ -562,9 +566,9 @@ function EMCO:setWrap(wrapAt)
   end
 end
 
---- Appends the current line from the MUD to a tab
--- depending on this object's configuration, may gag the line
--- depending on this object's configuration, may gag the next prompt
+--- Appends the current line from the MUD to a tab.
+-- <br>depending on this object's configuration, may gag the line
+-- <br>depending on this object's configuration, may gag the next prompt
 -- @tparam string tabName The name of the tab to append the line to
 function EMCO:append(tabName)
   local funcName = "EMCO:append(tabName)"
@@ -661,6 +665,8 @@ function EMCO:xEcho(tabName, message, xtype)
 end
 
 --- cecho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to cecho to
+-- @tparam string message the message to cecho to that tab's console
 function EMCO:cecho(tabName, message)
   local funcName = "EMCO:cecho(tabName, message)"
   self:checkEchoArgs(funcName, tabName, message)
@@ -668,6 +674,8 @@ function EMCO:cecho(tabName, message)
 end
 
 --- decho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to decho to
+-- @tparam string message the message to decho to that tab's console
 function EMCO:decho(tabName, message)
   local funcName = "EMCO:decho(console, message)"
   self:checkEchoArgs(funcName, tabName, message)
@@ -675,6 +683,8 @@ function EMCO:decho(tabName, message)
 end
 
 --- hecho to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to hecho to
+-- @tparam string message the message to hecho to that tab's console
 function EMCO:hecho(tabName, message)
   local funcName = "EMCO:hecho(console, message)"
   self:checkEchoArgs(funcName, tabName, message)
@@ -682,6 +692,8 @@ function EMCO:hecho(tabName, message)
 end
 
 --- echo to a tab, maintaining functionality
+-- @tparam string tabName the name of the tab to echo to
+-- @tparam string message the message to echo to that tab's console
 function EMCO:echo(tabName, message)
   local funcName = "EMCO:echo(console, message)"
   self:checkEchoArgs(funcName, tabName, message)
@@ -703,6 +715,12 @@ function EMCOHelper:switchTab(designator)
 end
 
 EMCO.parent = Geyser.Container
+
+--- Creates a new Embeddable Multi Console Object.
+-- <br>see https://github.com/demonnic/EMCO/wiki for information on valid constraints and defaults
+-- @tparam table cons table of constraints which configures the EMCO. 
+-- @tparam GeyserObject container The container to use as the parent for the EMCO
+-- @return the newly created EMCO
 function EMCO:new(cons, container)
   local funcName = "EMCO:new(cons, container)"
   cons = cons or {}
@@ -779,7 +797,11 @@ function EMCO:new(cons, container)
   me.gap = cons.gap or 1
   me.consoles = cons.consoles
   me.tabHeight = cons.tabHeight or 25
-  me.autoWrap = cons.autoWrap or true
+  if cons.autoWrap == nil then
+    me.autoWrap = true
+  else
+    me.autoWrap = cons.autoWrap
+  end
   me.wrapAt = cons.wrapAt or 300
   me.currentTab = ""
   me.tabs = {}
