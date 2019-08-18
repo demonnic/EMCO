@@ -7,14 +7,12 @@ EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
 })
 
---- Scans for the old YATCO configuration values and prints out a set of constraints to use
--- with EMCO to achieve the same effect. Hopefully.
-function EMCO:convertYATCO()
+function EMCO:readYATCO()
   local config
   if demonnic and demonnic.chat and demonnic.chat.config then 
     config = demonnic.chat.config
   else
-    cecho("<white>(<blue>EMCO<white>)<r> Could not find demonnic.chat.config, nothing to convert\n")
+    cecho("<white>(<blue>EMCO<white>)<reset> Could not find demonnic.chat.config, nothing to convert\n")
     return
   end
   local constraints = "EMCO:new({\n"
@@ -23,14 +21,14 @@ function EMCO:convertYATCO()
   constraints = string.format("%s  width = %d,\n", constraints, demonnic.chat.container.get_width())
   constraints = string.format("%s  height = %d,\n", constraints, demonnic.chat.container.get_height())
   if config.timestamp then
-    constraints = string.format("%s  timestamp = true,\n  timestampFormat = \"%s\"\n", constraints, config.timestamp)
+    constraints = string.format("%s  timestamp = true,\n  timestampFormat = \"%s\",\n", constraints, config.timestamp)
   else
     constraints = string.format("%s  timestamp = false,\n", constraints)
   end
   if config.timestampColor then
-    constraints = string.format("%s  customeTimestampColor = true,\n", constraints)
+    constraints = string.format("%s  customTimestampColor = true,\n", constraints)
   else
-    constraints = string.format("%s  customeTimestampColor = false,\n", constraints)
+    constraints = string.format("%s  customTimestampColor = false,\n", constraints)
   end
   if config.timestampFG then
     constraints = string.format("%s  timestampFGColor = \"%s\",\n", constraints, config.timestampFG)
@@ -75,8 +73,33 @@ function EMCO:convertYATCO()
   constraints = string.format("%s  activeTabFGColor = \"%s\",\n", constraints, config.activeTabText)
   constraints = string.format("%s  inactiveTabFGColor = \"%s\"", constraints, config.inactiveTabText)
   constraints = string.format("%s\n})", constraints)
+  return constraints
+end
+
+--- Scans for the old YATCO configuration values and prints out a set of constraints to use.
+-- with EMCO to achieve the same effect. Is just the invocation
+function EMCO:miniConvertYATCO()
+  local constraints = self:readYATCO()
   cecho("<white>(<blue>EMCO<white>)<reset> Found a YATCO config. Here are the constraints to use with EMCO(x,y,width, and height have been converted to their absolute values):\n\n")
   echo(constraints .. "\n")
+end
+
+--- Echos to the main console a script object you can add which will fully convert YATCO to EMCO.
+-- This replaces the demonnic.chat variable with a newly created EMCO object, so that the main 
+-- functions used to place information on the consoles (append(), cecho(), etc) should continue to
+-- work in the user's triggers and events.
+function EMCO:convertYATCO()
+  local invocation = self:readYATCO()
+  local header = [[
+  <white>(<blue>EMCO<white>)<reset> Found a YATCO config. Make a new script, then copy and paste the following output into it.
+  <white>(<blue>EMCO<white>)<reset> Afterward, uninstall YATCO (you can leave YATCOConfig until you're sure everything is right) and restart Mudlet
+  <white>(<blue>EMCO<white>)<reset> If everything looks right, you can uninstall YATCOConfig. 
+
+
+-- Copy everything below this line until the next line starting with --
+demonnic = demonnic or {}
+demonnic.chat = ]]
+  cecho(string.format("%s%s\n--- End script\n", header, invocation))
 end
 
 function EMCO:checkTabPosition(position)
@@ -703,7 +726,7 @@ function EMCO:xEcho(tabName, message, xtype)
     else
       colorString = string.format("<%s,%s,%s:%s,%s,%s>", ofr,ofg,ofb,obr,obg,obb)
     end
-    local timestamp = getTime(self.timestampFormat)
+    local timestamp = getTime(true, self.timestampFormat)
     local fullTimestamp = string.format("%s%s<r> ", colorString, timestamp)
     console:decho(fullTimestamp)
     if self.allTab and tabName ~= self.allTabName then
