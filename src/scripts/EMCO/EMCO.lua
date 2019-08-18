@@ -17,7 +17,7 @@ function EMCO:convertYATCO()
     cecho("<white>(<blue>EMCO<white>)<r> Could not find demonnic.chat.config, nothing to convert\n")
     return
   end
-  local constraints = "{\n"
+  local constraints = "EMCHO:new({\n"
   constraints = string.format("%s  x = %d,\n", constraints, demonnic.chat.container.get_x())
   constraints = string.format("%s  y = %d,\n", constraints, demonnic.chat.container.get_y())
   constraints = string.format("%s  width = %d,\n", constraints, demonnic.chat.container.get_width())
@@ -74,7 +74,7 @@ function EMCO:convertYATCO()
   constraints = string.format("%s  consoleColor = \"<%s,%s,%s>\",\n", constraints, config.windowColors.r, config.windowColors.g, config.windowColors.b)
   constraints = string.format("%s  activeTabFGColor = \"%s\",\n", constraints, config.activeTabText)
   constraints = string.format("%s  inactiveTabFGColor = \"%s\"", constraints, config.inactiveTabText)
-  constraints = string.format("%s\n}", constraints)
+  constraints = string.format("%s\n})", constraints)
   cecho("<white>(<blue>EMCO<white>)<reset> Found a YATCO config. Here are the constraints to use with EMCO(x,y,width, and height have been converted to their absolute values):\n\n")
   echo(constraints .. "\n")
 end
