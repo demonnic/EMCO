@@ -734,6 +734,10 @@ function EMCO:xEcho(tabName, message, xtype)
     console:echo(message)
     if self.allTab then allTab:echo(message) end
   end
+  if self.blankLine then
+    console:echo("\n")
+    if self.allTab then allTab:echo("\n") end
+  end
 end
 
 --- cecho to a tab, maintaining functionality
@@ -771,6 +775,17 @@ function EMCO:echo(tabName, message)
   self:checkEchoArgs(funcName, tabName, message)
   self:xEcho(tabName, message, 'e')
 end
+
+--- Enable placing a blank line between all messages.
+function EMCO:enableBlankLine()
+  self.blankLine = true
+end
+
+--- Enable placing a blank line between all messages.
+function EMCO:disableBlankLine()
+  self.blankLine = false
+end
+
 
 EMCOHelper = EMCOHElper or {}
 EMCOHelper.items = EMCOHelper.items or {}
@@ -852,6 +867,11 @@ function EMCO:new(cons, container)
     me:enableBlink()
   else
     me:disableBlink()
+  end
+  if me:fuzzyBoolean(cons.blankLine) then
+    me:enableBlankLine()
+  else
+    me:disableBlankLine()
   end
   me.blinkTime = cons.blinkTime or 3
   me.fontSize = cons.fontSize or 9
