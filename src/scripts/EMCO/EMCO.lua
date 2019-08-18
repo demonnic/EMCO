@@ -18,6 +18,10 @@ function EMCO:convertYATCO()
     return
   end
   local constraints = "{\n"
+  constraints = string.format("%s  x = %d,\n", constraints, demonnic.chat.container.get_x())
+  constraints = string.format("%s  y = %d,\n", constraints, demonnic.chat.container.get_y())
+  constraints = string.format("%s  width = %d,\n", constraints, demonnic.chat.container.get_width())
+  constraints = string.format("%s  height = %d,\n", constraints, demonnic.chat.container.get_height())
   if config.timestamp then
     constraints = string.format("%s  timestamp = true,\n  timestampFormat = \"%s\"\n", constraints, config.timestamp)
   else
@@ -71,7 +75,7 @@ function EMCO:convertYATCO()
   constraints = string.format("%s  activeTabFGColor = \"%s\",\n", constraints, config.activeTabText)
   constraints = string.format("%s  inactiveTabFGColor = \"%s\"", constraints, config.inactiveTabText)
   constraints = string.format("%s\n}", constraints)
-  cecho("<white>(<blue>EMCO<white>)<reset> Found a YATCO config. Here are the constraints to use with EMCO(minus x,y,width, and height):\n\n")
+  cecho("<white>(<blue>EMCO<white>)<reset> Found a YATCO config. Here are the constraints to use with EMCO(x,y,width, and height have been converted to their absolute values):\n\n")
   echo(constraints .. "\n")
 end
 
