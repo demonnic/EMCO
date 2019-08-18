@@ -7,6 +7,74 @@ EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
 })
 
+--- Scans for the old YATCO configuration values and prints out a set of constraints to use
+-- with EMCO to achieve the same effect. Hopefully.
+function EMCO:convertYATCO()
+  local config
+  if demonnic and demonnic.chat and demonnic.chat.config then 
+    config = demonnic.chat.config
+  else
+    cecho("<white>(<blue>EMCO<white>)<r> Could not find demonnic.chat.config, nothing to convert\n")
+    return
+  end
+  local constraints = "{\n"
+  if config.timestamp then
+    constraints = string.format("%s  timestamp = true,\n  timestampFormat = \"%s\"\n", constraints, config.timestamp)
+  else
+    constraints = string.format("%s  timestamp = false,\n", constraints)
+  end
+  if config.timestampColor then
+    constraints = string.format("%s  customeTimestampColor = true,\n", constraints)
+  else
+    constraints = string.format("%s  customeTimestampColor = false,\n", constraints)
+  end
+  if config.timestampFG then
+    constraints = string.format("%s  timestampFGColor = \"%s\",\n", constraints, config.timestampFG)
+  end
+  if config.timestampBG then
+    constraints = string.format("%s  timestampBGColor = \"%s\",\n", constraints, config.timestampBG)
+  end
+  if config.channels then
+    local channels = "consoles = {\n"
+    for _,channel in ipairs(config.channels) do
+      if _ == #config.channels then
+        channels = string.format("%s    \"%s\"", channels, channel)
+      else
+        channels = string.format("%s    \"%s\",\n", channels, channel)
+      end
+    end
+    channels = string.format("%s\n  },\n", channels)
+    constraints = string.format([[%s  %s]], constraints, channels)
+  end
+  if config.Alltab then
+    constraints = string.format("%s  allTab = true,\n", constraints)
+    constraints = string.format("%s  allTabName = \"%s\",\n", constraints, config.Alltab)
+  else
+    constraints = string.format("%s  allTab = false,\n", constraints)
+  end
+  if config.Maptab and config.Maptab ~= "" then
+    constraints = string.format("%s  mapTab = true,\n", constraints)
+    constraints = string.format("%s  mapTabName = \"%s\",\n", constraints, config.Maptab)
+  else
+    constraints = string.format("%s  mapTab = false,\n", constraints)
+  end
+  constraints = string.format("%s  blink = %s,\n", constraints, tostring(config.blink))
+  constraints = string.format("%s  blinkFromAll = %s,\n", constraints, tostring(config.blinkFromAll))
+  if config.fontSize then
+    constraints = string.format("%s  fontSize = %d,\n", constraints, config.fontSize)
+  end
+  constraints = string.format("%s  preserveBackground = %s,\n", constraints, tostring(config.preserveBackground))
+  constraints = string.format("%s  gag = %s,\n", constraints, tostring(config.gag))
+  constraints = string.format("%s  activeTabBGColor = \"<%s,%s,%s>\",\n", constraints, config.activeColors.r, config.activeColors.g, config.activeColors.b)
+  constraints = string.format("%s  inactiveTabBGColor = \"<%s,%s,%s>\",\n", constraints, config.inactiveColors.r, config.inactiveColors.g, config.inactiveColors.b)
+  constraints = string.format("%s  consoleColor = \"<%s,%s,%s>\",\n", constraints, config.windowColors.r, config.windowColors.g, config.windowColors.b)
+  constraints = string.format("%s  activeTabFGColor = \"%s\",\n", constraints, config.activeTabText)
+  constraints = string.format("%s  inactiveTabFGColor = \"%s\"", constraints, config.inactiveTabText)
+  constraints = string.format("%s\n}", constraints)
+  cecho("<white>(<blue>EMCO<white>)<reset> Found a YATCO config. Here are the constraints to use with EMCO(minus x,y,width, and height):\n\n")
+  echo(constraints .. "\n")
+end
+
 function EMCO:checkTabPosition(position)
   if position == nil then
     return 0
