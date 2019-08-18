@@ -177,6 +177,11 @@ function EMCO:createComponentsForTab(tabName)
     else
       window:setWrap(self.wrapAt)
     end
+    if self.scrollbars then
+      window:enableScrollBar()
+    else
+      window:disableScrollBar()
+    end
   end
   self.windows[tabName] = window
   window:hide()
@@ -786,6 +791,31 @@ function EMCO:disableBlankLine()
   self.blankLine = false
 end
 
+--- Enable scrollbars for the miniconsoles
+function EMCO:enableScrollbars()
+  self.scrollbars = true
+  self:adjustScrollbars()
+end
+
+--- Disable scrollbars for the miniconsoles
+function EMCO:disableScrollbars()
+  self.scrollbars = false
+  self:adjustScrollbars()
+end
+
+function EMCO:adjustScrollbars()
+  for _,console in ipairs(self.consoles) do
+    if self.mapTab and self.mapTabName == console then
+      -- skip the Map tab
+    else
+      if self.scrollbars then
+        self.windows[console]:enableScrollBar()
+      else
+        self.windows[console]:disableScrollBar()
+      end
+    end
+  end
+end
 
 EMCOHelper = EMCOHElper or {}
 EMCOHelper.items = EMCOHelper.items or {}
@@ -872,6 +902,11 @@ function EMCO:new(cons, container)
     me:enableBlankLine()
   else
     me:disableBlankLine()
+  end
+  if me:fuzzyBoolean(cons.scrollbars) then
+    me.scrollbars = true
+  else
+    me.scrollbars = false
   end
   me.blinkTime = cons.blinkTime or 3
   me.fontSize = cons.fontSize or 9
