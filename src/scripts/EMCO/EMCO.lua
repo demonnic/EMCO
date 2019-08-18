@@ -17,7 +17,7 @@ function EMCO:convertYATCO()
     cecho("<white>(<blue>EMCO<white>)<r> Could not find demonnic.chat.config, nothing to convert\n")
     return
   end
-  local constraints = "EMCHO:new({\n"
+  local constraints = "EMCO:new({\n"
   constraints = string.format("%s  x = %d,\n", constraints, demonnic.chat.container.get_x())
   constraints = string.format("%s  y = %d,\n", constraints, demonnic.chat.container.get_y())
   constraints = string.format("%s  width = %d,\n", constraints, demonnic.chat.container.get_width())
