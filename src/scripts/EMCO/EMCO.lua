@@ -165,6 +165,9 @@ function EMCO:switchTab(tabName)
   self.tabs[tabName]:setStyleSheet(self.activeTabCSS)
   self.tabs[tabName]:setColor(self.activeTabBGColor)
   self.tabs[tabName]:echo(tabName, self.activeTabFGColor, "c")
+  if oldTab and self.windows[oldTab] then
+    self.windows[oldTab]:hide()
+  end
   self.windows[tabName]:show()
   self.currentTab = tabName
 end
@@ -186,6 +189,7 @@ function EMCO:createComponentsForTab(tabName)
     x = 1,
     y = 1,
     height = "-2px",
+    width = "100%",
     name = string.format("%sWindow%s", self.name, tabName)
   }
   local parent = self.consoleContainer
