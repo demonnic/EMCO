@@ -844,7 +844,7 @@ function EMCO:adjustScrollbars()
   end
 end
 
-EMCOHelper = EMCOHElper or {}
+EMCOHelper = EMCOHelper or {}
 EMCOHelper.items = EMCOHelper.items or {}
 function EMCOHelper:switchTab(designator)
   local args = string.split(designator, "+")
