@@ -252,7 +252,7 @@ function EMCO:createContainers()
     x = 0,
     y = tostring(heightPlusGap) .. "px",
     width = "100%",
-    height = "-" .. tostring(heightPlusGap) .. "px",
+    height = "-0px",
     name = self.name .. "ConsoleContainer"
   }, self)
   self.consoleContainer:setStyleSheet(self.consoleContainerCSS)
