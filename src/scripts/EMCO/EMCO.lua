@@ -9,7 +9,7 @@ EMCO = Geyser.Container:new({
 
 function EMCO:readYATCO()
   local config
-  if demonnic and demonnic.chat and demonnic.chat.config then 
+  if demonnic and demonnic.chat and demonnic.chat.config then
     config = demonnic.chat.config
   else
     cecho("<white>(<blue>EMCO<white>)<reset> Could not find demonnic.chat.config, nothing to convert\n")
@@ -85,7 +85,7 @@ function EMCO:miniConvertYATCO()
 end
 
 --- Echos to the main console a script object you can add which will fully convert YATCO to EMCO.
--- This replaces the demonnic.chat variable with a newly created EMCO object, so that the main 
+-- This replaces the demonnic.chat variable with a newly created EMCO object, so that the main
 -- functions used to place information on the consoles (append(), cecho(), etc) should continue to
 -- work in the user's triggers and events.
 function EMCO:convertYATCO()
@@ -121,7 +121,7 @@ function EMCO:checkTabName(tabName)
   end
 end
 
-function EMCO:ae(funcName, message)
+function EMCO.ae(funcName, message)
   error(string.format("%s: Argument Error: %s", funcName, message))
 end
 
@@ -135,9 +135,9 @@ end
 function EMCO:addTab(tabName, position)
   local funcName = "EMCO:addTab(tabName, position)"
   position = self:checkTabPosition(position)
-  if type(position) == "string" then self:ae(funcName, "position as number expected, got " .. position) end
+  if type(position) == "string" then self.ae(funcName, "position as number expected, got " .. position) end
   local tabCheck = self:checkTabName(tabName)
-  if tabCheck ~= "clear" then self:ae(funcName, tabCheck) end
+  if tabCheck ~= "clear" then self.ae(funcName, tabCheck) end
   if position == 0 then
     table.insert(self.consoles, tabName)
     self:createComponentsForTab(tabName)
@@ -149,12 +149,12 @@ end
 
 function EMCO:switchTab(tabName)
   local oldTab = self.currentTab
-  if oldTab ~= tabName and oldTab ~= "" then 
+  if oldTab ~= tabName and oldTab ~= "" then
     self.windows[oldTab]:hide()
     self.tabs[oldTab]:setStyleSheet(self.inactiveTabCSS)
     self.tabs[oldTab]:setColor(self.inactiveTabBGColor)
     self.tabs[oldTab]:echo(oldTab, self.inactiveTabFGColor, "c")
-    if self.blink then 
+    if self.blink then
       if self.allTab and tabName == self.allTabName then
         self.tabsToBlink = {}
       elseif self.tabsToBlink[tabName] then
@@ -246,7 +246,7 @@ function EMCO:createContainers()
   }, self.tabBoxLabel)
   self.tabBoxLabel:setStyleSheet(self.tabBoxCSS)
   self.tabBoxLabel:setColor(self.tabBoxColor)
-  
+
   local heightPlusGap = tonumber(self.tabHeight) + tonumber(self.gap)
   self.consoleContainer = Geyser.Label:new({
     x = 0,
@@ -320,7 +320,7 @@ function EMCO:setTimestampFormat(format)
   local funcName = "EMCO:setTimestampFormat(format)"
   local strippedFormat = self:stripTimeChars(format)
   if strippedFormat ~= "" then
-    self:ae(funcName, "format contains invalid time format characters. Please see https://wiki.mudlet.org/w/Manual:Lua_Functions#getTime for formatting information")
+    self.ae(funcName, "format contains invalid time format characters. Please see https://wiki.mudlet.org/w/Manual:Lua_Functions#getTime for formatting information")
   else
     self.timestampFormat = format
   end
@@ -343,8 +343,8 @@ end
 function EMCO:setAllTabName(allTabName)
   local funcName = "EMCO:setAllTabName(allTabName)"
   local allTabNameType = type(allTabName)
-  if allTabNameType ~= "string" then self:ae(funcName, "allTabName expected as string, got" .. allTabNameType) end
-  if not table.contains(self.consoles, allTabName) then self:ae(funcName, "allTabName must be the name of one of the console tabs. Valid options are: " .. table.concat(self.containers, ",")) end
+  if allTabNameType ~= "string" then self.ae(funcName, "allTabName expected as string, got" .. allTabNameType) end
+  if not table.contains(self.consoles, allTabName) then self.ae(funcName, "allTabName must be the name of one of the console tabs. Valid options are: " .. table.concat(self.containers, ",")) end
   self.allTabName = allTabName
 end
 
@@ -384,13 +384,13 @@ end
 function EMCO:setMapTabName(mapTabName)
   local funcName = "EMCO:setMapTabName(mapTabName)"
   local mapTabNameType = type(mapTabName)
-  if mapTabNameType ~= "string" then 
-    self:ae(funcName, "mapTabName as string expected, got" .. mapTabNameType) 
+  if mapTabNameType ~= "string" then
+    self.ae(funcName, "mapTabName as string expected, got" .. mapTabNameType)
   end
-  if not table.contains(self.consoles, mapTabName) and mapTabName ~= "" then 
-    self:ae(funcName, "mapTabName must be one of the existing console tabs. Current tabs are: " .. table.concat(self.consoles, ","))
+  if not table.contains(self.consoles, mapTabName) and mapTabName ~= "" then
+    self.ae(funcName, "mapTabName must be one of the existing console tabs. Current tabs are: " .. table.concat(self.consoles, ","))
   end
-  self.mapTabName = mapTabName    
+  self.mapTabName = mapTabName
 end
 
 --- Enables tab blinking even if you're on the 'all' tab
@@ -439,7 +439,7 @@ function EMCO:setBlinkTime(blinkTime)
   local funcName = "EMCO:setBlinkTime(blinkTime)"
   local blinkTimeNumber = tonumber(blinkTime)
   if not blinkTimeNumber then
-    self:ae(funcName, "blinkTime as number expected, got ".. type(blinkeTime))
+    self.ae(funcName, "blinkTime as number expected, got ".. type(blinkeTime))
   else
     self.blinkTime = blinkTimeNumber
     if self.blinkTimerID then
@@ -465,7 +465,7 @@ function EMCO:setFontSize(fontSize)
   local fontSizeNumber = tonumber(fontSize)
   local fontSizeType = type(fontSize)
   if not fontSizeNumber then
-    self:ae(funcName, "fontSize as number expected, got " .. fontSizeType)
+    self.ae(funcName, "fontSize as number expected, got " .. fontSizeType)
   else
     self.fontSize = fontSizeNumber
     for _,tabName in ipairs(self.consoles) do
@@ -517,7 +517,7 @@ function EMCO:setInactiveTabFGColor(color)
 end
 
 --- Sets the BG color for the active tab.
--- <br>NOTE: If you set CSS for the active tab, it will override this setting. 
+-- <br>NOTE: If you set CSS for the active tab, it will override this setting.
 -- @param color Color string suitable for decho or hecho, or color name eg "purple", or table of colors {r,g,b}
 function EMCO:setActiveTabBGColor(color)
   self.activeTabBGColor = color
@@ -555,7 +555,7 @@ function EMCO:setTabBoxCSS(css)
   local funcName = "EMCHO:setTabBoxCSS(css)"
   local cssType = type(css)
   if cssType ~= "string" then
-    self:ae(funcName, "css as string expected, got " .. cssType)
+    self.ae(funcName, "css as string expected, got " .. cssType)
   else
     self.tabBoxCSS = css
     self:adjustTabBoxBackground()
@@ -600,7 +600,7 @@ function EMCO:setGap(gap)
   local funcName = "EMCO:setGap(gap)"
   local gapType = type(gap)
   if not gapNumber then
-    self:ae(funcName, "gap expected as number, got " .. gapType)
+    self.ae(funcName, "gap expected as number, got " .. gapType)
   else
     self.gap = gapNumber
     self:reset()
@@ -614,7 +614,7 @@ function EMCO:setTabHeight(tabHeight)
   local funcName = "EMCO:setTabHeight(tabHeight)"
   local tabHeightType = type(tabHeight)
   if not tabHeightNumber then
-    self:ae(funcName, "tabHeight as number expected, got ".. tabHeightType)
+    self.ae(funcName, "tabHeight as number expected, got ".. tabHeightType)
   else
     self.tabHeight = tabHeightNumber
     self:reset()
@@ -657,7 +657,7 @@ function EMCO:setWrap(wrapAt)
   local wrapAtNumber = tonumber(wrapAt)
   local wrapAtType = type(wrapAt)
   if not wrapAtNumber then
-    self:ae(funcName, "wrapAt as number expect, got " .. wrapAtType)
+    self.ae(funcName, "wrapAt as number expect, got " .. wrapAtType)
   else
     self.wrapAt = wrapAtNumber
     for _,console in ipairs(self.consoles) do
@@ -674,40 +674,43 @@ end
 -- <br>depending on this object's configuration, may gag the line
 -- <br>depending on this object's configuration, may gag the next prompt
 -- @tparam string tabName The name of the tab to append the line to
-function EMCO:append(tabName)
-  local funcName = "EMCO:append(tabName)"
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:append(tabName, excludeAll)
+  local funcName = "EMCO:append(tabName, excludeAll)"
   local tabNameType = type(tabName)
   local validTab = table.contains(self.consoles, tabName)
-  if tabNameType ~= "string" then 
-    self:ae(funcName, "tabName as string expected, got ".. tabNameType)
+  if tabNameType ~= "string" then
+    self.ae(funcName, "tabName as string expected, got ".. tabNameType)
   elseif not validTab then
-    self:ae(funcNAme, "tabName must be a tab which is contained in this object. Valid tabnames are: " .. table.concat(self.consoles, ","))
+    self.ae(funcName, "tabName must be a tab which is contained in this object. Valid tabnames are: " .. table.concat(self.consoles, ","))
   end
-  self:xEcho(tabName, nil, 'a')
+  self:xEcho(tabName, nil, 'a', excludeAll)
 end
 
-function EMCO:checkEchoArgs(funcName, tabName, message)
+function EMCO:checkEchoArgs(funcName, tabName, message, excludeAll)
   local tabNameType = type(tabName)
   local messageType = type(message)
   local validTabName = table.contains(self.consoles, tabName)
+  local excludeAllType = type(excludeAll)
+  local ae = self.ae
   if tabNameType ~= "string" then
-    self:ae(funcName, "tabName as string expected, got " .. tabNameType)
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
   elseif messageType ~= "string" then
-    self:ae(funcName, "message as string expected, got " .. messageType)
+    ae(funcName, "message as string expected, got " .. messageType)
   elseif not validTabName then
-    self:ae(funcName, "tabName must be the name of a tab attached to this object. Valid names are: " .. table.concat(self.consoles, ","))
+    ae(funcName, "tabName must be the name of a tab attached to this object. Valid names are: " .. table.concat(self.consoles, ","))
+  elseif excludeAllType ~= "nil" and excludeAllType ~= "boolean" then
+    ae(funcName, "optional argument excludeAll expected as boolean, got " .. excludeAllType)
   end
 end
 
-function EMCO:xEcho(tabName, message, xtype)
+function EMCO:xEcho(tabName, message, xtype, excludeAll)
   if self.mapTab and self.mapTabName == tabName then
     error("You cannot send text to the Map tab")
   end
   local console = self.windows[tabName]
-  local allTab,ofr,ofg,ofb,obr,obg,obb
-  if self.allTab then
-    allTab = self.windows[self.allTabName]
-  end
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local ofr,ofg,ofb,obr,obg,obb
   if xtype == "a" then
     selectCurrentLine()
     ofr,ofg,ofb = getFgColor()
@@ -716,7 +719,7 @@ function EMCO:xEcho(tabName, message, xtype)
       local r,g,b = Geyser.Color.parse(self.consoleColor)
       setBgColor(r,g,b)
     end
-    copy()    
+    copy()
   else
     ofr,ofg,ofb = Geyser.Color.parse("white")
     obr,obg,obb = Geyser.Color.parse(self.consoleColor)
@@ -733,7 +736,7 @@ function EMCO:xEcho(tabName, message, xtype)
     local timestamp = getTime(true, self.timestampFormat)
     local fullTimestamp = string.format("%s%s<r> ", colorString, timestamp)
     console:decho(fullTimestamp)
-    if self.allTab and tabName ~= self.allTabName then
+    if allTab and tabName ~= self.allTabName then
       allTab:decho(fullTimestamp)
     end
   end
@@ -744,7 +747,7 @@ function EMCO:xEcho(tabName, message, xtype)
   end
   if xtype == "a" then
     console:appendBuffer()
-    if self.allTab then
+    if allTab then
       allTab:appendBuffer()
     end
     if self.gag then
@@ -753,59 +756,238 @@ function EMCO:xEcho(tabName, message, xtype)
         tempPromptTrigger(function() deleteLine() end, 1)
       end
     end
-  elseif xtype == "c" then
-    console:cecho(message)
-    if self.allTab then allTab:cecho(message) end  
-  elseif xtype == "d" then
-    console:decho(message)
-    if self.allTab then allTab:decho(message) end
-  elseif xtype == "h" then
-    console:hecho(message)
-    if self.allTab then allTab:hecho(message) end
-  elseif xtype == "e" then
-    console:echo(message)
-    if self.allTab then allTab:echo(message) end
+  else
+    console[xtype](console, message)
+    if allTab then allTab[xtype](allTab, message) end
   end
   if self.blankLine then
     console:echo("\n")
-    if self.allTab then allTab:echo("\n") end
+    if allTab then allTab:echo("\n") end
   end
 end
 
 --- cecho to a tab, maintaining functionality
 -- @tparam string tabName the name of the tab to cecho to
 -- @tparam string message the message to cecho to that tab's console
-function EMCO:cecho(tabName, message)
-  local funcName = "EMCO:cecho(tabName, message)"
-  self:checkEchoArgs(funcName, tabName, message)
-  self:xEcho(tabName, message, 'c')
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cecho(tabName, message, excludeAll)
+  local funcName = "EMCO:cecho(tabName, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'cecho', excludeAll)
 end
 
 --- decho to a tab, maintaining functionality
 -- @tparam string tabName the name of the tab to decho to
 -- @tparam string message the message to decho to that tab's console
-function EMCO:decho(tabName, message)
-  local funcName = "EMCO:decho(console, message)"
-  self:checkEchoArgs(funcName, tabName, message)
-  self:xEcho(tabName, message, 'd')
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:decho(tabName, message, excludeAll)
+  local funcName = "EMCO:decho(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'decho', excludeAll)
 end
 
 --- hecho to a tab, maintaining functionality
 -- @tparam string tabName the name of the tab to hecho to
 -- @tparam string message the message to hecho to that tab's console
-function EMCO:hecho(tabName, message)
-  local funcName = "EMCO:hecho(console, message)"
-  self:checkEchoArgs(funcName, tabName, message)
-  self:xEcho(tabName, message, 'h')
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hecho(tabName, message, excludeAll)
+  local funcName = "EMCO:hecho(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'hecho', excludeAll)
 end
 
 --- echo to a tab, maintaining functionality
 -- @tparam string tabName the name of the tab to echo to
 -- @tparam string message the message to echo to that tab's console
-function EMCO:echo(tabName, message)
-  local funcName = "EMCO:echo(console, message)"
-  self:checkEchoArgs(funcName, tabName, message)
-  self:xEcho(tabName, message, 'e')
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echo(tabName, message, excludeAll)
+  local funcName = "EMCO:echo(console, message, excludeAll)"
+  self:checkEchoArgs(funcName, tabName, message, excludeAll)
+  self:xEcho(tabName, message, 'echo', excludeAll)
+end
+
+-- internal function used for type checking echoLink/Popup arguments
+function EMCO:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, popup)
+  local expectedType = popup and "table" or "string"
+  local textType = type(text)
+  local commandsType = type(commands)
+  local hintsType = type(hints)
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  local excludeAllType = type(excludeAll)
+  local sf = string.format
+  local ae = self.ae
+  if textType ~= "string" then
+    ae(funcName, "text as string expected, got " .. textType)
+  elseif commandsType ~= expectedType then
+    ae(funcName, sf("commands as %s expected, got %s", expectedType, commandsType))
+  elseif hintsType ~= expectedType then
+    ae(funcName, sf("hints as %s expected, got %s", expectedType, hintsType))
+  elseif tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, sf("tabName must be a tab which exists, tab %s could not be found", tabName))
+  elseif self.mapTab and tabName == self.mapTabName then
+    ae(funcName, sf("You cannot echo to the map tab, and %s is configured as the mapTabName", tabName))
+  elseif excludeAllType ~= "nil" and excludeAllType ~= "boolean" then
+    ae(funcName, "Optional argument excludeAll expected as boolean, got " .. excludeAllType)
+  end
+end
+
+-- internal function used for handling echoLink/popup
+function EMCO:xLink(tabName, linkType, text, commands, hints, useCurrentFormat, excludeAll)
+  local console = self.windows[tabName]
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local arguments = {text, commands, hints, useCurrentFormat}
+  if self.timestamp then
+    local colorString = ""
+    if self.customTimestampColor then
+      local tfr,tfg,tfb = Geyser.Color.parse(self.timestampFGColor)
+      local tbr,tbg,tbb = Geyser.Color.parse(self.timestampBGColor)
+      colorString = string.format("<%s,%s,%s:%s,%s,%s>", tfr,tfg,tfb,tbr,tbg,tbb)
+    else
+      local ofr,ofg,ofb = Geyser.Color.parse("white")
+      local obr,obg,obb = Geyser.Color.parse(self.consoleColor)
+      colorString = string.format("<%s,%s,%s:%s,%s,%s>", ofr,ofg,ofb,obr,obg,obb)
+    end
+    local timestamp = getTime(true, self.timestampFormat)
+    local fullTimestamp = string.format("%s%s<r> ", colorString, timestamp)
+    console:decho(fullTimestamp)
+    if allTab then
+      allTab:decho(fullTimestamp)
+    end
+  end
+  console[linkType](console, unpack(arguments))
+  if allTab then allTab[linkType](allTab, unpack(arguments)) end
+end
+
+--- cechoLink to a tab
+-- @tparam string tabName the name of the tab to cechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:cechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "cechoLink", text, command, hint, true, excludeAll)
+end
+
+--- dechoLink to a tab
+-- @tparam string tabName the name of the tab to dechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:dechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:dechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "dechoLink", text, command, hint, true, excludeAll)
+end
+
+--- hechoLink to a tab
+-- @tparam string tabName the name of the tab to hechoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hechoLink(tabName, text, command, hint, excludeAll)
+  local funcName = "EMCO:hechoLink(tabName, text, command, hint)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "hechoLink", text, command, hint, true, excludeAll)
+end
+
+--- echoLink to a tab
+-- @tparam string tabName the name of the tab to echoLink to
+-- @tparam string text the text underlying the link
+-- @tparam string command the lua code to run in string format
+-- @tparam string hint the tooltip hint to use for the link
+-- @tparam boolean useCurrentFormat use the format for the window or blue on black (hyperlink colors)
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echoLink(tabName, text, command, hint, useCurrentFormat, excludeAll)
+  local funcName = "EMCO:echoLink(tabName, text, command, hint, useCurrentFormat)"
+  self:checkLinkArgs(funcName, tabName, text, command, hint, excludeAll)
+  self:xLink(tabName, "echoLink", text, command, hint, useCurrentFormat, excludeAll)
+end
+
+--- cechoPopup to a tab
+-- @tparam string tabName the name of the tab to cechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:cechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:cechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "cechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- dechoPopup to a tab
+-- @tparam string tabName the name of the tab to dechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:dechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:dechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "dechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- hechoPopup to a tab
+-- @tparam string tabName the name of the tab to hechoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:hechoPopup(tabName, text, commands, hints, excludeAll)
+  local funcName = "EMCO:hechoPopup(tabName, text, commands, hints)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "hechoPopup", text, commands, hints, true, excludeAll)
+end
+
+--- echoPopup to a tab
+-- @tparam string tabName the name of the tab to echoPopup to
+-- @tparam string text the text underlying the link
+-- @tparam table commands the lua code to run in string format
+-- @tparam table hints the tooltip hint to use for the link
+-- @tparam boolean useCurrentFormat use the format for the window or blue on black (hyperlink colors)
+-- @tparam boolean excludeAll if true, will exclude this from being mirrored to the allTab
+function EMCO:echoPopup(tabName, text, commands, hints, useCurrentFormat, excludeAll)
+  local funcName = "EMCO:echoPopup(tabName, text, commands, hints, useCurrentFormat)"
+  self:checkLinkArgs(funcName, tabName, text, commands, hints, excludeAll, true)
+  self:xLink(tabName, "echoPopup", text, commands, hints, useCurrentFormat, excludeAll)
+end
+
+--- adds a tab to the exclusion list for echoing to the allTab
+-- @tparam string tabName the name of the tab to add to the exclusion list
+function EMCO:addAllTabExclusion(tabName)
+  local funcName = "EMCO:addAllTabExclusion(tabName)"
+  local ae = self.ae
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  if tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
+  end
+  if not table.contains(self.allTabExclusions, tabName) then table.insert(self.allTabExclusions, tabName) end
+end
+
+--- removess a tab from the exclusion list for echoing to the allTab
+-- @tparam string tabName the name of the tab to remove from the exclusion list
+function EMCO:removeAllTabExclusion(tabName)
+  local funcName = "EMCO:removeAllTabExclusion(tabName)"
+  local ae = self.ae
+  local tabNameType = type(tabName)
+  local validTabName = table.contains(self.consoles, tabName)
+  if tabNameType ~= "string" then
+    ae(funcName, "tabName as string expected, got " .. tabNameType)
+  elseif not validTabName then
+    ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
+  end
+  local index = table.index_of(self.allTabExclusions, tabName)
+  if index then table.remove(self.allTabExclusions, index) end
 end
 
 --- Enable placing a blank line between all messages.
@@ -862,7 +1044,7 @@ EMCO.parent = Geyser.Container
 
 --- Creates a new Embeddable Multi Console Object.
 -- <br>see https://github.com/demonnic/EMCO/wiki for information on valid constraints and defaults
--- @tparam table cons table of constraints which configures the EMCO. 
+-- @tparam table cons table of constraints which configures the EMCO.
 -- @tparam GeyserObject container The container to use as the parent for the EMCO
 -- @return the newly created EMCO
 function EMCO:new(cons, container)
@@ -877,11 +1059,13 @@ function EMCO:new(cons, container)
       self:ce(funcName, [["mapTabName" must be one of the consoles contained within constraint "consoles". Valid option for tha mapTab are: ]] .. table.concat(cons.consoles, ","))
     end
   end
+  cons.allTabExclusions = cons.allTabExclusions or {}
+  if not type(cons.allTabExclusions) == "table" then self:se(funcName, "allTabExclusions must be a table if it is provided") end
   local me = self.parent:new(cons, container)
   setmetatable(me, self)
   self.__index = self
   -- set some defaults. Almost all the defaults we had for YATCO, plus a few new ones
-  if me:fuzzyBoolean(cons.timestamp) then 
+  if me:fuzzyBoolean(cons.timestamp) then
     me:enableTimestamp()
   else
     me:disableTimestamp()
@@ -891,23 +1075,23 @@ function EMCO:new(cons, container)
   else
     me:disableCustomTimestampColor()
   end
-  if me:fuzzyBoolean(cons.mapTab) then 
+  if me:fuzzyBoolean(cons.mapTab) then
     me.mapTab = true
   else
     me.mapTab = false
   end
-  if me:fuzzyBoolean(cons.blinkFromAll) then 
+  if me:fuzzyBoolean(cons.blinkFromAll) then
     me:enableBlinkFromAll()
   else
     me:disableBlinkFromAll()
   end
-  if me:fuzzyBoolean(cons.preserveBackground) then 
+  if me:fuzzyBoolean(cons.preserveBackground) then
     me:enablePreserveBackground()
   else
     me:disablePreserveBackground()
   end
-  if me:fuzzyBoolean(cons.gag)then 
-    me:enableGag() 
+  if me:fuzzyBoolean(cons.gag)then
+    me:enableGag()
   else
     me:disableGag()
   end
@@ -919,7 +1103,6 @@ function EMCO:new(cons, container)
   else
     me:disableAllTab()
   end
-  me:setAllTabName(cons.allTabName or "All")
   if me:fuzzyBoolean(cons.blink) then
     me:enableBlink()
   else
@@ -943,7 +1126,7 @@ function EMCO:new(cons, container)
   me.inactiveTabFGColor = cons.inactiveTabFGColor or "white"
   me.activeTabBGColor = cons.activeTabBGColor or "<0,180,0>"
   me.inactiveTabBGColor = cons.inactiveTabBGColor or "<60,60,60>"
-  me.consoleColor = cons.consoleColor or "black" 
+  me.consoleColor = cons.consoleColor or "black"
   me.tabBoxCSS = cons.tabBoxCSS or ""
   me.tabBoxColor = cons.tabBoxColor or "black"
   me.consoleContainerCSS = cons.consoleContainerCSS or ""
@@ -963,6 +1146,7 @@ function EMCO:new(cons, container)
   me.windows = {}
   self.blinkTimerID = tempTimer(me.blinkTime, function() me:doBlink() end, true)
   me:reset()
+  if me.allTab then me:setAllTabName(me.allTabName or me.consoles[1]) end
   table.insert(EMCOHelper.items, me)
   return me
 end
