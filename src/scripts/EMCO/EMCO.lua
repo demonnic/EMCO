@@ -150,7 +150,7 @@ end
 function EMCO:switchTab(tabName)
   local oldTab = self.currentTab
   if oldTab ~= tabName and oldTab ~= "" then
-    self.windows[oldTab]:hide()
+    self.mc[oldTab]:hide()
     self.tabs[oldTab]:setStyleSheet(self.inactiveTabCSS)
     self.tabs[oldTab]:setColor(self.inactiveTabBGColor)
     self.tabs[oldTab]:echo(oldTab, self.inactiveTabFGColor, "c")
@@ -165,10 +165,10 @@ function EMCO:switchTab(tabName)
   self.tabs[tabName]:setStyleSheet(self.activeTabCSS)
   self.tabs[tabName]:setColor(self.activeTabBGColor)
   self.tabs[tabName]:echo(tabName, self.activeTabFGColor, "c")
-  if oldTab and self.windows[oldTab] then
-    self.windows[oldTab]:hide()
+  if oldTab and self.mc[oldTab] then
+    self.mc[oldTab]:hide()
   end
-  self.windows[tabName]:show()
+  self.mc[tabName]:show()
   self.currentTab = tabName
 end
 
@@ -176,6 +176,9 @@ function EMCO:createComponentsForTab(tabName)
   local tab = Geyser.Label:new({
     name = string.format("%sTab%s", self.name, tabName)
   }, self.tabBox)
+  if self.tabFont then
+    tab:setFont(tabFont)
+  end
   tab:echo(tabName, self.inactiveTabFGColor, 'c')
   -- use the inactive CSS. It's "" if unset, which is ugly, but
   tab:setStyleSheet(self.inactiveTabCSS)
@@ -197,6 +200,9 @@ function EMCO:createComponentsForTab(tabName)
     window = Geyser.Mapper:new(windowConstraints, parent)
   else
     window = Geyser.MiniConsole:new(windowConstraints, parent)
+    if self.font then
+      window:setFont(font)
+    end
     window:setFontSize(self.fontSize)
     window:setColor(self.consoleColor)
     if self.autoWrap then
@@ -210,7 +216,7 @@ function EMCO:createComponentsForTab(tabName)
       window:disableScrollBar()
     end
   end
-  self.windows[tabName] = window
+  self.mc[tabName] = window
   window:hide()
 end
 
@@ -292,6 +298,82 @@ function EMCO:fuzzyBoolean(bool)
   else
     return nil
   end
+end
+
+--- clears a specific tab
+--- @tparam string tabName the name of the tab to clear
+function EMCO:clear(tabName)
+  local funcName = "EMCO:clear(tabName)"
+  if not table.contains(self.consoles, tabName) then
+    self.ae(funcName, "tabName must be an existing tab")
+  end
+  if self.mapTab and self.mapTabName == tabName then
+    self.ae(funcName, "Cannot clear the map tab")
+  end
+  self.mc[tabName]:clear()
+end
+
+--- clears all the tabs
+function EMCO:clearAll()
+  for _,tabName in ipairs(self.consoles) do
+    if not self.mapTab or (tabName ~= self.mapTabName) then
+      self:clear(tabName)
+    end
+  end
+end
+
+--- sets the font for all tabs
+--- @tparam string font the font to use.
+function EMCO:setTabFont(font)
+  self.tabFont = font
+  for _,tab in pairs(self.tabs) do
+    tab:setFont(font)
+  end
+end
+
+--- sets the font for a single tab. If you use setTabFont this will be overridden
+--- @tparam string tabName the tab to change the font of
+--- @tparam string font the font to use for that tab
+function EMCO:setSingleTabFont(tabName, font)
+  local funcName = "EMCO:setSingleTabFont(tabName, font)"
+  if not table.contains(self.consoles, tabName) then
+    self.ae(funcName, "tabName must be an existing tab")
+  end
+  self.tabs[tabName]:setFont(font)
+end
+
+--- sets the font for all the miniconsoles
+--- @tparam string font the name of the font to use
+function EMCO:setFont(font)
+  local af = getAvailableFonts()
+  if not (af[font] or font == "") then
+    local err = "EMCO:setFont(font): attempt to call setFont with font '" .. font .. "' which is not available, see getAvailableFonts() for valid options\n"
+    err = err .. "In the meantime, we will use a similar font which isn't the one you asked for but we hope is close enough"
+    debugc(err)
+  end
+  self.font = font
+  for _,tabName in pairs(self.consoles) do
+    if not self.mapTab or tabName ~= self.mapTabName then
+      self.mc[tabName]:setFont(font)
+    end
+  end
+end
+
+--- sets the font for a specific miniconsole. If setFont is called this will be overridden
+--- @tparam string tabName the name of window to set the font for
+--- @tparam string font the name of the font to use
+function EMCO:setSingleWindowFont(tabName, font)
+  local funcName = "EMCO:setSingleWindowFont(tabName, font)"
+  if not table.contains(self.consoles, tabName) then
+    self.ae(funcName, "tabName must be an existing tab")
+  end
+  local af = getAvailableFonts()
+  if not (af[font] or font == "") then
+    local err = "EMCO:setSingleWindowFont(tabName, font): attempt to call setFont with font '" .. font .. "' which is not available, see getAvailableFonts() for valid options\n"
+    err = err .. "In the meantime, we will use a similar font which isn't the one you asked for but we hope is close enough"
+    debugc(err)
+  end
+  self.mc[tabName]:setFont(font)
 end
 
 --- enables custom colors for the timestamp, if displayed
@@ -472,7 +554,7 @@ function EMCO:setFontSize(fontSize)
       if self.mapTab and tabName == self.mapTabName then
         -- skip this one
       else
-        local window = self.windows[tabName]
+        local window = self.mc[tabName]
         window:setFontSize(fontSizeNumber)
       end
     end
@@ -544,7 +626,7 @@ function EMCO:adjustConsoleColors()
     if self.mapTab and self.mapTabName == console then
       -- skip Map
     else
-      self.windows[console]:setColor(self.consoleColor)
+      self.mc[console]:setColor(self.consoleColor)
     end
   end
 end
@@ -630,7 +712,7 @@ function EMCO:enableAutoWrap()
     if self.mapTab and console == self.mapTabName then
       -- skip the map
     else
-      self.windows[console]:enableAutoWrap()
+      self.mc[console]:enableAutoWrap()
     end
   end
 end
@@ -644,7 +726,7 @@ function EMCO:disableAutoWrap()
     if self.mapTab and self.mapTabName == console then
       -- skip Map
     else
-      self.windows[console]:disableAutoWrap()
+      self.mc[console]:disableAutoWrap()
     end
   end
 end
@@ -664,7 +746,7 @@ function EMCO:setWrap(wrapAt)
       if self.mapTab and self.mapTabName == console then
         -- skip the Map
       else
-        self.windows[console]:setWrap(wrapAtNumber)
+        self.mc[console]:setWrap(wrapAtNumber)
       end
     end
   end
@@ -708,8 +790,8 @@ function EMCO:xEcho(tabName, message, xtype, excludeAll)
   if self.mapTab and self.mapTabName == tabName then
     error("You cannot send text to the Map tab")
   end
-  local console = self.windows[tabName]
-  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local console = self.mc[tabName]
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.mc[self.allTabName] or false
   local ofr,ofg,ofb,obr,obg,obb
   if xtype == "a" then
     selectCurrentLine()
@@ -720,6 +802,11 @@ function EMCO:xEcho(tabName, message, xtype, excludeAll)
       setBgColor(r,g,b)
     end
     copy()
+    if self.preserveBackground then
+      setBgColor(obr, obg, obb)
+    end
+    deselect()
+    resetFormat()
   else
     ofr,ofg,ofb = Geyser.Color.parse("white")
     obr,obg,obb = Geyser.Color.parse(self.consoleColor)
@@ -836,8 +923,8 @@ end
 
 -- internal function used for handling echoLink/popup
 function EMCO:xLink(tabName, linkType, text, commands, hints, useCurrentFormat, excludeAll)
-  local console = self.windows[tabName]
-  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.windows[self.allTabName] or false
+  local console = self.mc[tabName]
+  local allTab = (self.allTab and not excludeAll and not table.contains(self.allTabExclusions, tabName) and tabName ~= self.allTabName) and self.mc[self.allTabName] or false
   local arguments = {text, commands, hints, useCurrentFormat}
   if self.timestamp then
     local colorString = ""
@@ -1018,9 +1105,9 @@ function EMCO:adjustScrollbars()
       -- skip the Map tab
     else
       if self.scrollbars then
-        self.windows[console]:enableScrollBar()
+        self.mc[console]:enableScrollBar()
       else
-        self.windows[console]:disableScrollBar()
+        self.mc[console]:disableScrollBar()
       end
     end
   end
@@ -1139,11 +1226,13 @@ function EMCO:new(cons, container)
   else
     me.autoWrap = cons.autoWrap
   end
+  me.font = cons.font
+  me.tabFont = cons.tabFont
   me.wrapAt = cons.wrapAt or 300
   me.currentTab = ""
   me.tabs = {}
   me.tabsToBlink = {}
-  me.windows = {}
+  me.mc = {}
   self.blinkTimerID = tempTimer(me.blinkTime, function() me:doBlink() end, true)
   me:reset()
   if me.allTab then me:setAllTabName(me.allTabName or me.consoles[1]) end
