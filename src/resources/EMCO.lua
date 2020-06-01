@@ -3,7 +3,7 @@
 -- similar to Geyser so that you can a.) have multiple of them and b.) easily embed it
 -- into your existing UI as you would any other Geyser element.
 -- @module EMCO
-EMCO = Geyser.Container:new({
+local EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
 })
 
@@ -177,7 +177,7 @@ function EMCO:createComponentsForTab(tabName)
     name = string.format("%sTab%s", self.name, tabName)
   }, self.tabBox)
   if self.tabFont then
-    tab:setFont(tabFont)
+    tab:setFont(self.tabFont)
   end
   tab:echo(tabName, self.inactiveTabFGColor, 'c')
   -- use the inactive CSS. It's "" if unset, which is ugly, but
@@ -201,7 +201,7 @@ function EMCO:createComponentsForTab(tabName)
   else
     window = Geyser.MiniConsole:new(windowConstraints, parent)
     if self.font then
-      window:setFont(font)
+      window:setFont(self.font)
     end
     window:setFontSize(self.fontSize)
     window:setColor(self.consoleColor)
@@ -521,7 +521,7 @@ function EMCO:setBlinkTime(blinkTime)
   local funcName = "EMCO:setBlinkTime(blinkTime)"
   local blinkTimeNumber = tonumber(blinkTime)
   if not blinkTimeNumber then
-    self.ae(funcName, "blinkTime as number expected, got ".. type(blinkeTime))
+    self.ae(funcName, "blinkTime as number expected, got ".. type(blinkTime))
   else
     self.blinkTime = blinkTimeNumber
     if self.blinkTimerID then
@@ -1239,3 +1239,5 @@ function EMCO:new(cons, container)
   table.insert(EMCOHelper.items, me)
   return me
 end
+
+return EMCO
