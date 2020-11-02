@@ -8,6 +8,7 @@
 --@license MIT, see LICENSE.lua
 local EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
+  timestampExceptions = {},
 })
 
 -- patch Geyser.MiniConsole if it does not have its own display method defined
@@ -25,6 +26,14 @@ if Geyser.MiniConsole.display == Geyser.display then
   end
 end
 
+local pathOfThisFile = (...):match("(.-)[^%.]+$")
+local ok, content = pcall(require, pathOfThisFile .. "loggingconsole")
+local LC
+if ok then
+  LC = content
+else
+  debugc("EMCO tried to require loggingconsole but could not because: " .. content)
+end
 --- Creates a new Embeddable Multi Console Object.
 -- <br>see https://github.com/demonnic/EMCO/wiki for information on valid constraints and defaults
 -- @tparam table cons table of constraints which configures the EMCO.
@@ -38,7 +47,7 @@ end
 -- </thead>
 -- <tbody>
 --   <tr>
---     <td class="tg-odd">timeStamp</td>
+--     <td class="tg-odd">timestamp</td>
 --     <td class="tg-odd">display timestamps on the miniconsoles?</td>
 --     <td class="tg-odd">false</td>
 --   </tr>
@@ -238,6 +247,51 @@ end
 --     <td class="tg-even">Number of pixels to put between the top edge of the miniconsole container, and the miniconsole? This is in addition to gap</td>
 --     <td class="tg-even">0</td>
 --   </tr>
+--   <tr>
+--     <td class="tg-odd">timestampExceptions</td>
+--     <td class="tg-odd">Table of tabnames which should not get timestamps even if timestamps are turned on</td>
+--     <td class="tg-odd">{}</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-even">tabFontSize</td>
+--     <td class="tg-even">Font size for the tabs</td>
+--     <td class="tg-even">8</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-odd">tabBold</td>
+--     <td class="tg-odd">Should the tab text be bold? Boolean value</td>
+--     <td class="tg-odd">false</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-even">tabItalics</td>
+--     <td class="tg-even">Should the tab text be italicized?</td>
+--     <td class="tg-even">false</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-odd">tabUnderline</td>
+--     <td class="tg-odd">Should the tab text be underlined?</td>
+--     <td class="tg-odd">false</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-even">tabAlignment</td>
+--     <td class="tg-even">Valid alignments are 'c', 'center', 'l', 'left', 'r', 'right', or '' to not include the alignment as part of the echo (to allow the stylesheet to handle it)</td>
+--     <td class="tg-even">'c'</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-odd">commandLine</td>
+--     <td class="tg-odd">Should we enable commandlines for the miniconsoles?</td>
+--     <td class="tg-odd">false</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-even">cmdActions</td>
+--     <td class="tg-even">A table with console names as keys, and values which are templates for the command to send. see the setCustomCommandline function for more</td>
+--     <td class="tg-even">{}</td>
+--   </tr>
+--   <tr>
+--     <td class="tg-odd">backgroundImages</td>
+--     <td class="tg-odd">A table containing definitions for the background images. Each entry should have a key the same name as the tab it applies to, with entries "image" which is the path to the image file,<br>and "mode" which determines how it is displayed. "border" stretches, "center" center, "tile" tiles, and "style". See Mudletwikilink for details.</td>
+--     <td class="tg-odd">{}</td>
+--   </tr>
 -- </tbody>
 -- </table>
 -- @tparam GeyserObject container The container to use as the parent for the EMCO
@@ -260,6 +314,10 @@ function EMCO:new(cons, container)
   setmetatable(me, self)
   self.__index = self
   -- set some defaults. Almost all the defaults we had for YATCO, plus a few new ones
+  me.cmdActions = cons.cmdActions or {}
+  if not type(me.cmdActions) == "table" then self:se(funcName, "cmdActions must be a table if it is provided") end
+  me.backgroundImages = cons.backgroundImages or {}
+  if not type(me.backgroundImages) == "table" then self:se(funcName, "backgroundImages must be a table if provided.") end
   if me:fuzzyBoolean(cons.timestamp) then
     me:enableTimestamp()
   else
@@ -313,6 +371,11 @@ function EMCO:new(cons, container)
   else
     me.scrollbars = false
   end
+  me.tabUnderline = me:fuzzyBoolean(cons.tabUnderline) and true or false
+  me.tabBold = me:fuzzyBoolean(cons.tabBold) and true or false
+  me.tabItalics = me:fuzzyBoolean(cons.tabItalics) and true or false
+  me.tabFontSize = cons.tabFontSize or 8
+  me.tabAlignment = cons.tabAlignment or "c"
   me.blinkTime = cons.blinkTime or 3
   me.fontSize = cons.fontSize or 9
   me.activeTabCSS = cons.activeTabCSS or ""
@@ -326,6 +389,7 @@ function EMCO:new(cons, container)
   me.tabBoxColor = cons.tabBoxColor or "black"
   me.consoleContainerCSS = cons.consoleContainerCSS or ""
   me.consoleContainerColor = cons.consoleContainerColor or "black"
+  me.commandLine = me:fuzzyBoolean(cons.commandLine) and true or false
   me.gap = cons.gap or 1
   me.consoles = cons.consoles
   me.tabHeight = cons.tabHeight or 25
@@ -529,7 +593,7 @@ function EMCO:switchTab(tabName)
     self.mc[oldTab]:hide()
     self.tabs[oldTab]:setStyleSheet(self.inactiveTabCSS)
     self.tabs[oldTab]:setColor(self.inactiveTabBGColor)
-    self.tabs[oldTab]:echo(oldTab, self.inactiveTabFGColor, "c")
+    self.tabs[oldTab]:echo(oldTab, self.inactiveTabFGColor)
     if self.blink then
       if self.allTab and tabName == self.allTabName then
         self.tabsToBlink = {}
@@ -540,7 +604,7 @@ function EMCO:switchTab(tabName)
   end
   self.tabs[tabName]:setStyleSheet(self.activeTabCSS)
   self.tabs[tabName]:setColor(self.activeTabBGColor)
-  self.tabs[tabName]:echo(tabName, self.activeTabFGColor, "c")
+  self.tabs[tabName]:echo(tabName, self.activeTabFGColor)
   if oldTab and self.mc[oldTab] then
     self.mc[oldTab]:hide()
   end
@@ -555,7 +619,12 @@ function EMCO:createComponentsForTab(tabName)
   if self.tabFont then
     tab:setFont(self.tabFont)
   end
-  tab:echo(tabName, self.inactiveTabFGColor, 'c')
+  tab:echo(tabName, self.inactiveTabFGColor)
+  tab:setAlignment(self.tabAlignment)
+  tab:setFontSize(self.tabFontSize)
+  tab:setItalics(self.tabItalics)
+  tab:setBold(self.tabBold)
+  tab:setUnderline(self.tabUnderline)
   -- use the inactive CSS. It's "" if unset, which is ugly, but
   tab:setStyleSheet(self.inactiveTabCSS)
   -- set the BGColor if set. if the CSS is set it overrides the setColor, but if it's "" then the setColor actually covers that.
@@ -569,10 +638,12 @@ function EMCO:createComponentsForTab(tabName)
     y = self.topMargin,
     height = string.format("-%dpx", self.bottomMargin),
     width = string.format("-%dpx", self.rightMargin),
-    name = string.format("%sWindow%s", self.name, tabName)
+    name = string.format("%sWindow%s", self.name, tabName),
+    commandLine = self.commandLine
   }
   local parent = self.consoleContainer
-  if self.mapTab and tabName == self.mapTabName then
+  local mapTab = self.mapTab and tabName == self.mapTabName
+  if mapTab then
     window = Geyser.Mapper:new(windowConstraints, parent)
   else
     window = Geyser.MiniConsole:new(windowConstraints, parent)
@@ -593,7 +664,118 @@ function EMCO:createComponentsForTab(tabName)
     end
   end
   self.mc[tabName] = window
+  if not mapTab then
+    self:setCmdAction(tabName)
+  end
   window:hide()
+  self:processImage(tabName)
+end
+
+--- Sets the background image for a tab's console. use EMCO:resetBackgroundImage(tabName) to remove an image.
+--- @tparam string tabName the tab to change the background image for.
+--- @tparam string imagePath the path to the image file to use.
+--- @tparam string mode the mode to use. Will default to "center" if not provided.
+function EMCO:setBackgroundImage(tabName, imagePath, mode)
+  mode = mode or "center"
+  local tabNameType = type(tabName)
+  local imagePathType = type(imagePath)
+  local modeType = type(mode)
+  local funcName = "EMCO:setBackgroundImage(tabName, imagePath, mode)"
+  if tabNameType ~= "string" or not table.contains(self.consoles, tabName) then self.ae(funcName, "tabName must be a string and an existing tab") end
+  if imagePathType ~= "string" or not io.exists(imagePath) then self.ae(funcName, "imagePath must be a string and point to an existing image file") end
+  if modeType ~= "string" or not table.contains({"border", "center", "tile", "style"}, mode) then self.ae(funcName, "mode must be one of 'border', 'center', 'tile', or 'style'") end
+  local image = {
+    image = imagePath,
+    mode = mode
+  }
+  self.backgroundImages[tabName] = image
+  self:processImage(tabName)
+end
+
+--- Resets the background image on a tab's console, returning it to the background color
+--- @tparam string tabName the tab to change the background image for.
+function EMCO:resetBackgroundImage(tabName)
+  local tabNameType = type(tabName)
+  local funcName = "EMCO:resetBackgroundImage(tabName)"
+  if tabNameType ~= "string" or not table.contains(self.consoles, tabName) then self.ae(funcName, "tabName must be a string and an existing tab") end
+  self.backgroundImages[tabName] = nil
+  self:processImage(tabName)
+end
+
+--- Does the work of actually setting/resetting the background image on a tab
+--- @tparam string tabName the name of the tab to process the image for.
+--- @local
+function EMCO:processImage(tabName)
+  if self.mapTab and tabName == self.mapTabName then return end
+  local image = self.backgroundImages[tabName]
+  local window = self.mc[tabName]
+  if image then
+    if image.image and io.exists(image.image) then
+      window:setBackgroundImage(image.image, image.mode)
+    end
+  else
+    window:resetBackgroundImage()
+  end
+end
+
+--- Sets the command action for a tab's command line. Can either be a template string to send where '|t' is replaced by the text sent, or a funnction which takes the text
+--- @tparam string tabName the name of the tab to set the command action on
+--- @param template the template for the commandline to use, or the function to run when enter is hit.
+--- @usage myEMCO:setCmdAction("CT", "ct |t") -- will send everything in the CT tab's command line to CT by doing "ct Hi there!" if you type "Hi there!" in CT's command line
+--- @usage myEMCO:setCmdAction("CT", function(txt) send("ct " .. txt) end) -- functionally the same as the above
+function EMCO:setCmdAction(tabName, template)
+  template = template or self.cmdActions[tabName]
+  if template == "" then template = nil end
+  self.cmdActions[tabName] = template
+  local window = self.mc[tabName]
+  if template then
+    if type(template) == "string" then
+      window:setCmdAction(function(txt)
+        txt = template:gsub("|t", txt)
+        send(txt)
+      end)
+    elseif type(template) == "function" then
+      window:setCmdAction(template)
+    else
+      debugc(string.format("EMCO:setCmdAction(tabName, template): template must be a string or function if provided. Leaving CmdAction for tab %s be. Template type was: %s", tabName, type(template)))
+    end
+  else
+    window:resetCmdAction()
+  end
+end
+
+--- Resets the command action for tabName's miniconsole, which makes it work like the normal commandline
+--- @tparam string tabName the name of the tab to reset the cmdAction for
+function EMCO:resetCmdAction(tabName)
+  self.cmdActions[tabName] = nil
+  self.mc[tabName]:resetCmdAction()
+end
+
+--- Gets the contents of tabName's cmdLine
+--- @param tabName the name of the tab to get the commandline of
+function EMCO:getCmdLine(tabName)
+  return self.mc[tabName]:getCmdLine()
+end
+
+--- Prints to tabName's command line
+--- @param tabName the tab whose command line you want to print to
+--- @param txt the text to print to the command line
+function EMCO:printCmd(tabName, txt)
+  return self.mc[tabName]:printCmd(txt)
+end
+
+
+--- Clears tabName's command line
+--- @tparam string tabName the tab whose command line you want to clear
+function EMCO:clearCmd(tabName)
+  return self.mc[tabName]:clearCmd()
+end
+
+--- Appends text to tabName's command line
+--- @tparam string tabName the tab whose command line you want to append to
+--- @tparam string txt the text to append to the command line
+function EMCO:appendCmd(tabName, txt)
+  return self.mc[tabName]:appendCmd(txt)
 end
 
 --- resets the object, redrawing everything
@@ -750,6 +932,72 @@ function EMCO:setSingleWindowFont(tabName, font)
     debugc(err)
   end
   self.mc[tabName]:setFont(font)
+end
+
+--- sets the font size for all tabs
+--- @tparam number fontSize the font size to use for the tabs
+function EMCO:setTabFontSize(fontSize)
+  self.tabFontSize = fontSize
+  for _, tab in pairs(self.tabs) do
+    tab:setFontSize(fontSize)
+  end
+end
+
+--- Sets the alignment for all the tabs
+-- @param alignment Valid alignments are 'c', 'center', 'l', 'left', 'r', 'right', or '' to not include the alignment as part of the echo
+function EMCO:setTabAlignment(alignment)
+  self.tabAlignment = alignment
+  for _, tab in pairs(self.tabs) do
+    tab:setAlignment(self.tabAlignment)
+  end
+end
+
+--- enables underline on all tabs
+function EMCO:enableTabUnderline()
+  self.tabUnderline = true
+  for _, tab in pairs(self.tabs) do
+    tab:setUnderline(self.tabUnderline)
+  end
+end
+
+--- disables underline on all tabs
+function EMCO:disableTabUnderline()
+  self.tabUnderline = false
+  for _, tab in pairs(self.tabs) do
+    tab:setUnderline(self.tabUnderline)
+  end
+end
+
+--- enables italics on all tabs
+function EMCO:enableTabItalics()
+  self.tabItalics = true
+  for _, tab in pairs(self.tabs) do
+    tab:setItalics(self.tabItalics)
+  end
+end
+
+--- enables italics on all tabs
+function EMCO:disableTabItalics()
+  self.tabItalics = false
+  for _, tab in pairs(self.tabs) do
+    tab:setItalics(self.tabItalics)
+  end
+end
+
+--- enables bold on all tabs
+function EMCO:enableTabBold()
+  self.tabBold = true
+  for _, tab in pairs(self.tabs) do
+    tab:setBold(self.tabBold)
+  end
+end
+
+--- disables bold on all tabs
+function EMCO:disableTabBold()
+  self.tabBold = false
+  for _, tab in pairs(self.tabs) do
+    tab:setBold(self.tabBold)
+  end
 end
 
 --- enables custom colors for the timestamp, if displayed
@@ -1198,8 +1446,10 @@ function EMCO:xEcho(tabName, message, xtype, excludeAll)
     end
     local timestamp = getTime(true, self.timestampFormat)
     local fullTimestamp = string.format("%s%s<r> ", colorString, timestamp)
-    console:decho(fullTimestamp)
-    if allTab and tabName ~= self.allTabName then
+    if not table.contains(self.timestampExceptions, tabName) then
+      console:decho(fullTimestamp)
+    end
+    if allTab and tabName ~= self.allTabName and not table.contains(self.timestampExceptions, self.allTabName) then
       allTab:decho(fullTimestamp)
     end
   end
@@ -1315,8 +1565,10 @@ function EMCO:xLink(tabName, linkType, text, commands, hints, useCurrentFormat, 
     end
     local timestamp = getTime(true, self.timestampFormat)
     local fullTimestamp = string.format("%s%s<r> ", colorString, timestamp)
-    console:decho(fullTimestamp)
-    if allTab then
+    if not table.contains(self.timestampExceptions, tabName) then
+      console:decho(fullTimestamp)
+    end
+    if allTab and tabName ~= self.allTabName and not table.contains(self.timestampExceptions, self.allTabName) then
       allTab:decho(fullTimestamp)
     end
   end
@@ -1426,14 +1678,7 @@ end
 -- @tparam string tabName the name of the tab to add to the exclusion list
 function EMCO:addAllTabExclusion(tabName)
   local funcName = "EMCO:addAllTabExclusion(tabName)"
-  local ae = self.ae
-  local tabNameType = type(tabName)
-  local validTabName = table.contains(self.consoles, tabName)
-  if tabNameType ~= "string" then
-    ae(funcName, "tabName as string expected, got " .. tabNameType)
-  elseif not validTabName then
-    ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
-  end
+  self:validTabNameOrError(tabName, funcName)
   if not table.contains(self.allTabExclusions, tabName) then table.insert(self.allTabExclusions, tabName) end
 end
 
@@ -1441,6 +1686,12 @@ end
 -- @tparam string tabName the name of the tab to remove from the exclusion list
 function EMCO:removeAllTabExclusion(tabName)
   local funcName = "EMCO:removeAllTabExclusion(tabName)"
+  self:validTabNameOrError(tabName, funcName)
+  local index = table.index_of(self.allTabExclusions, tabName)
+  if index then table.remove(self.allTabExclusions, index) end
+end
+
+function EMCO:validTabNameOrError(tabName, funcName)
   local ae = self.ae
   local tabNameType = type(tabName)
   local validTabName = table.contains(self.consoles, tabName)
@@ -1449,8 +1700,19 @@ function EMCO:removeAllTabExclusion(tabName)
   elseif not validTabName then
     ae(funcName, string.format("tabName %s does not exist in this EMCO. valid tabs: " .. table.concat(self.consoles, ",")))
   end
-  local index = table.index_of(self.allTabExclusions, tabName)
-  if index then table.remove(self.allTabExclusions, index) end
+end
+
+function EMCO:addTimestampException(tabName)
+  local funcName = "EMCO:addTimestampException(tabName)"
+  self:validTabNameOrError(tabName, funcName)
+  if not table.contains(self.timestampExceptions, tabName) then table.insert(self.timestampExceptions, tabName) end
+end
+
+function EMCO:removeTimestampException(tabName)
+  local funcName = "EMCO:removeTimestampTabException(tabName)"
+  self:validTabNameOrError(tabName, funcName)
+  local index = table.index_of(self.timestampExceptions, tabName)
+  if index then table.remove(self.timestampExceptions, index) end
 end
 
 --- Enable placing a blank line between all messages.
@@ -1538,6 +1800,7 @@ function EMCO:save()
     gap = self.gap,
     consoles = self.consoles,
     allTabExclusions = self.allTabExclusions,
+    timestampExceptions = self.timestampExceptions,
     tabHeight = self.tabHeight,
     autoWrap = self.autoWrap,
     wrapAt = self.wrapAt,
@@ -1549,6 +1812,11 @@ function EMCO:save()
     y = self.y,
     height = self.height,
     width = self.width,
+    tabFontSize = self.tabFontSize,
+    tabBold = self.tabBold,
+    tabItalics = self.tabItalics,
+    tabUnderline = self.tabUnderline,
+    tabAlignment = self.tabAlignment,
   }
   local dirname = getMudletHomeDir().."/EMCO/"
   local filename = dirname .. self.name .. ".lua"
@@ -1595,12 +1863,18 @@ function EMCO:load()
   self.gap = configTable.gap
   self.consoles = configTable.consoles
   self.allTabExclusions = configTable.allTabExclusions
+  self.timestampExceptions = configTable.timestampExceptions
   self.tabHeight = configTable.tabHeight
   self.wrapAt = configTable.wrapAt
   self.leftMargin = configTable.leftMargin
   self.rightMargin = configTable.rightMargin
   self.bottomMargin = configTable.bottomMargin
   self.topMargin = configTable.topMargin
+  self.tabFontSize = configTable.tabFontSize
+  self.tabBold = configTable.tabBold
+  self.tabItalics = configTable.tabItalics
+  self.tabUnderline = configTable.tabUnderline
+  self.tabAlignment = configTable.tabAlignment
   self:move(configTable.x, configTable.y)
   self:resize(configTable.width, configTable.height)
   self:reset()
