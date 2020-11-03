@@ -9,6 +9,8 @@
 local EMCO = Geyser.Container:new({
   name = "TabbedConsoleClass",
   timestampExceptions = {},
+  path = "|h/log/|E/|y/|m/|d/",
+  fileName = "|N.|e"
 })
 
 -- patch Geyser.MiniConsole if it does not have its own display method defined
@@ -587,6 +589,8 @@ function EMCO:addTab(tabName, position)
   end
 end
 
+--- Switches the active, visible tab of the EMCO to tabName
+--@param tabName the name of the tab to show
 function EMCO:switchTab(tabName)
   local oldTab = self.currentTab
   if oldTab ~= tabName and oldTab ~= "" then
@@ -639,14 +643,20 @@ function EMCO:createComponentsForTab(tabName)
     height = string.format("-%dpx", self.bottomMargin),
     width = string.format("-%dpx", self.rightMargin),
     name = string.format("%sWindow%s", self.name, tabName),
-    commandLine = self.commandLine
+    commandLine = self.commandLine,
+    path = self:processTemplate(self.path, tabName),
+    fileName = self:processTemplate(self.fileName, tabName)
   }
   local parent = self.consoleContainer
   local mapTab = self.mapTab and tabName == self.mapTabName
   if mapTab then
     window = Geyser.Mapper:new(windowConstraints, parent)
   else
-    window = Geyser.MiniConsole:new(windowConstraints, parent)
+    if LC then
+      window = LC:new(windowConstraints, parent)
+    else
+      window = Geyser.MiniConsole:new(windowConstraints, parent)
+    end
     if self.font then
       window:setFont(self.font)
     end
@@ -715,6 +725,42 @@ function EMCO:processImage(tabName)
     end
   else
     window:resetBackgroundImage()
+  end
+end
+
+--- Formats the string through EMCO's template. |E is replaced with the EMCO's name. |N is replaced with the tab's name.
+--@param str the string to replace tokens in
+function EMCO:processTemplate(str, tabName)
+  str = str:gsub("|E", self.name)
+  str = str:gsub("|N", tabName or "")
+  return str
+end
+
+--- Sets the path for the EMCO for logging
+--@param path the template for the path. @see EMCO:new()
+function EMCO:setPath(path)
+  if not LC then return end
+  path = path or self.path
+  self.path = path
+  path = self:processTemplate(path)
+  for name,window in pairs(self.mc) do
+    if not (self.mapTab and self.mapTabName == name) then
+      window:setPath(path)
+    end
+  end
+end
+
+--- Sets the fileName for the EMCO for logging
+--@param fileName the template for the path. @see EMCO:new()
+function EMCO:setFileName(fileName)
+  if not LC then return end
+  fileName = fileName or self.fileName
+  self.fileName = fileName
+  fileName = self:processTemplate(fileName)
+  for name,window in pairs(self.mc) do
+    if not (self.mapTab and self.mapTabName == name) then
+      window:setFileName(fileName)
+    end
   end
 end
 
