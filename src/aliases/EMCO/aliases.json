@@ -42,5 +42,9 @@
   {
     "name": "emco usage",
     "regex": "^emco( usage)?$"
+  },
+  {
+    "name": "emco update",
+    "regex": "^emco update$"
   }
 ]
