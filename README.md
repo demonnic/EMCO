@@ -64,3 +64,5 @@ If you want to send lines to the EMCO in code yourself, you can use `demonnic.ch
   * remove a gag pattern
 * `emco unnotify <tabName>`
   * turn off OS notifications for tabName
+* `emco update`
+  * (re)install the latest version of the package
