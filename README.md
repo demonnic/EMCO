@@ -8,6 +8,14 @@ It's built using an adjustable container, so it can be moved, resized, etc right
 
 You can leverage the entire [EMCO API](https://demonnic.github.io/mdk/current/classes/EMCO.html) by targeting `demonnic.chat` , as that is the actual underlying EMCO object.
 
+## Installation
+
+You can use the following command in Mudlet to install the latest version:
+
+`lua installPackage("https://github.com/demonnic/EMCO/latest/download/EMCOChat.mpackage")`
+
+Once you have it installed you can update by using the `emco update` alias.
+
 ## Usage
 
 ### Copying lines into your EMCO
