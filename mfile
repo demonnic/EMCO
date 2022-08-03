@@ -1,3 +1,8 @@
 {
-  "package": "EMCO",
+  "package": "EMCOChat",
+  "version": "2.7.0",
+  "author": "Demonnic",
+  "title": "Premade tabbed chat using EMCO",
+  "icon": "computer.png",
+  "outputFile": true
 }

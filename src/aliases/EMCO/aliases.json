@@ -1,0 +1,46 @@
+[
+  {
+    "name": "emco",
+    "regex": "^emco (save|load|font|fontSize|blink|blankLine|timestamp|show|hide)(?: (.+))?$"
+  },
+  {
+    "name": "emco gag",
+    "regex": "^emco gag (.+)"
+  },
+  {
+    "name": "emco ungag",
+    "regex": "^emco ungag (.+)"
+  },
+  {
+    "name": "emco gaglist",
+    "regex": "^emco gaglist$"
+  },
+  {
+    "name": "emco notify",
+    "regex": "^emco notify (.*)"
+  },
+  {
+    "name": "emco unnotify",
+    "regex": "^emco unnotify (.*)"
+  },
+  {
+    "name": "emco addtab",
+    "regex": "^emco addtab (\\w+)( \\d+)?$"
+  },
+  {
+    "name": "emco remtab",
+    "regex": "^emco remtab (.+)"
+  },
+  {
+    "name": "emco color",
+    "regex": "^emco color (\\w+) (.+)"
+  },
+  {
+    "name": "emco color usage",
+    "regex": "^emco color$"
+  },
+  {
+    "name": "emco usage",
+    "regex": "^emco( usage)?$"
+  }
+]
