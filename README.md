@@ -12,7 +12,7 @@ You can leverage the entire [EMCO API](https://demonnic.github.io/mdk/current/cl
 
 You can use the following command in Mudlet to install the latest version:
 
-`lua installPackage("https://github.com/demonnic/EMCO/latest/download/EMCOChat.mpackage")`
+`lua installPackage("https://github.com/demonnic/EMCO/releases/latest/download/EMCOChat.mpackage")`
 
 Once you have it installed you can update by using the `emco update` alias.
 
