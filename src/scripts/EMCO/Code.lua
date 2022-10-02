@@ -17,7 +17,7 @@ local inactiveStyle = Geyser.StyleSheet:new(f [[
   background-color: {demonnic.config.inactiveColor};
 ]], baseStyle)
 
-local chatEMCO
+local chatEMCO = demonnic.chat
 local EMCOfilename = getMudletHomeDir() .. "/EMCO/EMCOPrebuiltChat.lua"
 local confFile = getMudletHomeDir() .. "/EMCO/EMCOPrebuiltExtraOptions.lua"
 
