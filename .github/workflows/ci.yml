@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Muddle
+        uses: demonnic/build-with-muddler@v1.3
+
+      - name: Upload MPackage
+        uses: actions/upload-artifact@v2
+        with:
+          name: EMCOChat
+          path: build/tmp/
+
