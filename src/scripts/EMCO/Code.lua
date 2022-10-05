@@ -92,7 +92,9 @@ function demonnic.helpers.load()
     table.update(demonnic.config, conf)
   end
   if io.exists(EMCOfilename) then
+    chatEMCO:hide()
     chatEMCO:load()
+    chatEMCO:show()
   end
 end
 
