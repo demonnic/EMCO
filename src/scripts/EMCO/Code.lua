@@ -1,6 +1,5 @@
-local defaultConfig = {activeColor = "black", inactiveColor = "black", activeBorder = "green", activeText = "green", inactiveText = "grey", background = "black"}
+local defaultConfig = {activeColor = "black", inactiveColor = "black", activeBorder = "green", activeText = "green", inactiveText = "grey", background = "black", windowBorder = "green"}
 local emco = require("@PKGNAME@.emco")
-local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%"}
 demonnic = demonnic or {}
 demonnic.helpers = demonnic.helpers or {}
 demonnic.config = demonnic.config or defaultConfig
@@ -16,6 +15,14 @@ local inactiveStyle = Geyser.StyleSheet:new(f [[
   border-color: {demonnic.config.inactiveColor};
   background-color: {demonnic.config.inactiveColor};
 ]], baseStyle)
+local adjLabelStyle = Geyser.StyleSheet:new(f[[
+  background-color: rgba(0,0,0,100%);
+  border: 4px double;
+  border-color: {demonnic.config.windowBorder};
+  border-radius: 4px;]])
+
+  local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%", adjLabelstyle = adjLabelStyle:getCSS()}
+
 
 local chatEMCO = demonnic.chat
 local EMCOfilename = getMudletHomeDir() .. "/EMCO/EMCOPrebuiltChat.lua"
@@ -62,6 +69,10 @@ function demonnic.helpers.retheme()
   activeStyle:set("border-color", demonnic.config.activeBorder)
   inactiveStyle:set("background-color", demonnic.config.inactiveColor)
   inactiveStyle:set("border-color", demonnic.config.inactiveColor)
+  adjLabelStyle:set("border-color", demonnic.config.windowBorder)
+  local als = adjLabelStyle:getCSS()
+  demonnic.container.adjLabelstyle = als
+  demonnic.container.adjLabel:setStyleSheet(als)
   chatEMCO.activeTabCSS = activeStyle:getCSS()
   chatEMCO.inactiveTabCSS = inactiveStyle:getCSS()
   chatEMCO:setActiveTabFGColor(demonnic.config.activeText)
