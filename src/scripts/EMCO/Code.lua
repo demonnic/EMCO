@@ -21,7 +21,7 @@ local adjLabelStyle = Geyser.StyleSheet:new(f[[
   border-color: {demonnic.config.windowBorder};
   border-radius: 4px;]])
 
-  local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%", adjLabelstyle = adjLabelStyle:getCSS()}
+  local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%"}
 
 
 local chatEMCO = demonnic.chat
@@ -34,6 +34,7 @@ function demonnic.helpers.echo(msg)
 end
 
 function demonnic.helpers.resetToDefaults()
+  default_constraints.adjLabelstyle = adjLabelStyle:getCSS()
   demonnic.container = demonnic.container or Adjustable.Container:new(default_constraints)
   demonnic.config = defaultConfig
   demonnic.chat = emco:new({
@@ -94,19 +95,22 @@ end
 function demonnic.helpers.save()
   chatEMCO:save()
   table.save(confFile, demonnic.config)
+  demonnic.container:save()
 end
 
 function demonnic.helpers.load()
   if io.exists(confFile) then
     local conf = {}
     table.load(confFile, conf)
-    table.update(demonnic.config, conf)
+    demonnic.config = table.update(demonnic.config, conf)
   end
   if io.exists(EMCOfilename) then
     chatEMCO:hide()
     chatEMCO:load()
     chatEMCO:show()
   end
+  demonnic.container:load()
+  demonnic.helpers.retheme()
 end
 
 local function startup()
