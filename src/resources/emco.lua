@@ -2082,6 +2082,7 @@ function EMCO:save()
     preserveBackground = self.preserveBackground,
     gag = self.gag,
     timestampFormat = self.timestampFormat,
+    timestampFGColor = self.timestampFGColor,
     timestampBGColor = self.timestampBGColor,
     allTab = self.allTab,
     allTabName = self.allTabName,
@@ -2158,6 +2159,7 @@ function EMCO:load()
   self.preserveBackground = configTable.preserveBackground
   self.gag = configTable.gag
   self.timestampFormat = configTable.timestampFormat
+  self.timestampFGColor = configTable.timestampFGColor
   self.timestampBGColor = configTable.timestampBGColor
   self.allTab = configTable.allTab
   self.allTabName = configTable.allTabName
