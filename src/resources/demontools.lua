@@ -7,11 +7,7 @@ local DemonTools = {}
 local cheatConsole = Geyser.MiniConsole:new({name = "DemonnicCheatConsole", width = 4000, wrapWidth = 10000, color = "black"})
 cheatConsole:hide()
 local function exists(path)
-  local ok, err, code = os.rename(path, path)
-  if not ok and code == 13 then
-    return true
-  end
-  return ok, err
+  return io.exists(path)
 end
 
 local function isWindows()
