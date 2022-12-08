@@ -7,6 +7,8 @@ local DemonTools = {}
 local cheatConsole = Geyser.MiniConsole:new({name = "DemonnicCheatConsole", width = 4000, wrapWidth = 10000, color = "black"})
 cheatConsole:hide()
 local function exists(path)
+  path = path:gsub([[\$]], "")
+  path = path:gsub([[/$]], "")
   return io.exists(path)
 end
 
