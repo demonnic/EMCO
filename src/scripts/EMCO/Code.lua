@@ -1,5 +1,6 @@
 local defaultConfig = {activeColor = "black", inactiveColor = "black", activeBorder = "green", activeText = "green", inactiveText = "grey", background = "black", windowBorder = "green"}
 local emco = require("@PKGNAME@.emco")
+emco.cmdLineStyleSheet = nil
 demonnic = demonnic or {}
 demonnic.helpers = demonnic.helpers or {}
 demonnic.config = demonnic.config or defaultConfig
