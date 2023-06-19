@@ -46,5 +46,17 @@
   {
     "name": "emco update",
     "regex": "^emco update$"
+  },
+  {
+    "name": "emco title",
+    "regex": "^emco title (.+)"
+  },
+  {
+    "name": "emco lock",
+    "regex": "^emco lock$"
+  },
+  {
+    "name": "emco unlock",
+    "regex": "^emco unlock$"
   }
 ]

@@ -5,4 +5,4 @@ if not ok then
   echo(err)
   return
 end
-echo(f"Set {matches[2]} to {matches[3]}")
+echo(f"Set color for {matches[2]} to {matches[3]}")
