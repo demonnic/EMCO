@@ -50,6 +50,8 @@ If you want to send lines to the EMCO in code yourself, you can use `demonnic.ch
   * hide the EMCO
 * `emco load`
   * loads your config from disk
+* `emco lock`
+  * locks the EMCO in place
 * `emco notify <tabName>`
   * turn on OS notifications for tabName
 * `emco remtab <tabname>`
@@ -60,6 +62,10 @@ If you want to send lines to the EMCO in code yourself, you can use `demonnic.ch
   * show the EMCO
 * `emco timestamp <true|false>`
   * turn timestamps on/off
+* `emco title <new title>`
+  * Set the title at the top of the EMCO Chat window. "Tabbed Chat" is the default starting title.
+* `emco unlock`
+  * Unlocks the EMCO window so you can move and resize it again
 * `emco ungag <pattern>`
   * remove a gag pattern
 * `emco unnotify <tabName>`
