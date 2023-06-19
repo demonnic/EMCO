@@ -1,4 +1,4 @@
-local defaultConfig = {activeColor = "black", inactiveColor = "black", activeBorder = "green", activeText = "green", inactiveText = "grey", background = "black", windowBorder = "green"}
+local defaultConfig = {activeColor = "black", inactiveColor = "black", activeBorder = "green", activeText = "green", inactiveText = "grey", background = "black", windowBorder = "green", title = "green"}
 local emco = require("@PKGNAME@.emco")
 emco.cmdLineStyleSheet = nil
 demonnic = demonnic or {}
@@ -22,7 +22,7 @@ local adjLabelStyle = Geyser.StyleSheet:new(f[[
   border-color: {demonnic.config.windowBorder};
   border-radius: 4px;]])
 
-  local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%"}
+local default_constraints = {name = "EMCOPrebuiltChatContainer", x = "-25%", y = "-60%", width = "25%", height = "60%", titleText = "Tabbed Chat"}
 
 
 local chatEMCO = demonnic.chat
@@ -75,6 +75,7 @@ function demonnic.helpers.retheme()
   local als = adjLabelStyle:getCSS()
   demonnic.container.adjLabelstyle = als
   demonnic.container.adjLabel:setStyleSheet(als)
+  demonnic.container:setTitle(demonnic.container.titleText, demonnic.config.title)
   chatEMCO.activeTabCSS = activeStyle:getCSS()
   chatEMCO.inactiveTabCSS = inactiveStyle:getCSS()
   chatEMCO:setActiveTabFGColor(demonnic.config.activeText)
@@ -104,6 +105,9 @@ function demonnic.helpers.load()
     local conf = {}
     table.load(confFile, conf)
     demonnic.config = table.update(demonnic.config, conf)
+    for option, value in pairs(defaultConfig) do
+      demonnic.config[option] = demonnic.config[option] or value
+    end
   end
   if io.exists(EMCOfilename) then
     chatEMCO:hide()
